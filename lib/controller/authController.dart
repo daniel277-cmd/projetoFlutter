@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:teladelogin/models/userModel.dart';
 import 'package:teladelogin/repositories/authRepository.dart';
 import 'package:teladelogin/screens/loginScreen.dart';
+import 'package:teladelogin/screens/homeScreen.dart';
 import 'package:teladelogin/services/authService.dart';
 import 'package:teladelogin/services/sessionService.dart';
 
@@ -86,32 +87,68 @@ class AuthController extends GetxController {
       throw Exception('Falha ao autenticar. Tente novamente.');
     }
 
-    // 1) Tentamos obter do Firestore
-    var remote = await _repo.getFromFirestore(fbUser.uid);
+    // 1) Cria ou atualiza o usuário local primeiro (funciona offline)
+    var userModel = UserModel(
+      firebaseUid: fbUser.uid,
+      name: fbUser.displayName ?? (fbUser.email ?? 'Usuário'),
+      email: fbUser.email ?? 'sem-email@local',
+      avatarUrl: fbUser.photoURL,
+      isGoogleUser: loginProviderIsGoogle,
+      role: newUserDefaultRole,
+      classId: null,
+    );
 
-    // 2) Se não existir no Firestore, criamos um registro com defaults
-    if (remote == null) {
-      remote = UserModel(
-        firebaseUid: fbUser.uid,
-        name: fbUser.displayName ?? (fbUser.email ?? 'Usuário'),
-        email: fbUser.email ?? 'sem-email@local',
-        avatarUrl: fbUser.photoURL,
-        isGoogleUser: loginProviderIsGoogle,
-        role: newUserDefaultRole,   // por padrão aluno; professor/admin você pode ajustar manualmente no Firestore
-        classId: null,
-      );
-      await _repo.upsertFirestore(remote);
+    // 2) Tenta buscar dados remotos (não bloqueia se offline)
+    try {
+      var remote = await _repo.getFromFirestore(fbUser.uid);
+      if (remote != null) {
+        userModel = userModel.copyWith(
+          name: remote.name,
+          role: remote.role,
+          classId: remote.classId,
+        );
+        print('✅ Dados do Firestore carregados');
+      }
+    } catch (e) {
+      print('⚠️ Usando dados padrão (offline): $e');
     }
 
-    // 3) Consolida (Firestore → Local) e garante persistência bidirecional
-    final local = await _repo.syncUser(remote);
+    // 3) Salva/atualiza localmente (ou apenas usa os dados no Web)
+    UserModel local;
+    try {
+      local = await _repo.upsertLocal(userModel);
+      print('✅ Dados processados localmente');
+    } catch (e) {
+      print('⚠️ Usando dados sem persistência local (Web): $e');
+      local = userModel;
+    }
+    
+    // 4) Tenta sincronizar com Firestore (não bloqueia)
+    _repo.upsertFirestore(local).catchError((e) {
+      print('⚠️ Sincronização com Firestore falhará mais tarde: $e');
+    });
 
-    // 4) Salva na sessão
-    await _session.save(local);
+    // 5) Salva na sessão
+    try {
+      await _session.save(local);
+      print('✅ Sessão salva');
+    } catch (e) {
+      print('⚠️ Erro ao salvar sessão: $e');
+    }
+    
     current = local;
 
-    // 5) Redireciona pela permissão (se quiser telas distintas por perfil, ajuste aqui)
-    Get.offAllNamed('/home');
+    // 6) Redireciona para home
+    print('🚀 Redirecionando para home: ${local.name} (${local.email})');
+    
+    try {
+      Get.offAllNamed('/home');
+      print('✅ Navegação executada');
+    } catch (e) {
+      print('❌ Erro na navegação: $e');
+      // Fallback: navegação direta
+      Get.offAll(() => HomeScreen());
+    }
   }
 
   Future<void> _run(Future<void> Function() body, {bool showErrors = true}) async {

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart'; // Firebase Core
 import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore
 import 'package:get/get.dart'; // GetX para navegação
 import 'package:teladelogin/screens/loginScreen.dart';
 import 'package:teladelogin/screens/homeScreen.dart';
@@ -13,21 +14,33 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (kIsWeb) {
     // Web precisa de config extra
-    await Firebase.initializeApp(
-      options: const FirebaseOptions(
-        apiKey: "AIzaSyB1vI8yyPR-d9MYvrliuYHqVpucU9PB0mo", // sua apiKey
-        authDomain: "appmobile-2bbcb.firebaseapp.com", // seu authDomain
-        projectId: "appmobile-2bbcb", // seu projectId
-        storageBucket: "appmobile-2bbcb.appspot.com", // seu storageBucket
-        messagingSenderId: "851102593535", // seu messagingSenderId
-        appId: "1:851102593535:web:adcdef123456", // seu appId
-        measurementId: "G-851102593535", // seu measurementId
-      ),
-    );
+   await Firebase.initializeApp(
+  options: const FirebaseOptions(
+    apiKey: "AIzaSyB1vI8yyPR-d9MYvrliuYHqVpucU9PB0mo",
+    authDomain: "appmobile-2bbcb.firebaseapp.com",
+    projectId: "appmobile-2bbcb",
+    storageBucket: "appmobile-2bbcb.firebasestorage.app",
+    messagingSenderId: "851102593535",
+    appId: "1:851102593535:web:0b345ef43bf95ac37ca7ca",
+    measurementId: "G-9S2R9WYWTX",
+  ),
+);
+
   } else {
     await Firebase.initializeApp();
     // inicializa Firebase
   }
+  
+  // Configurar Firestore para funcionar offline
+  try {
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+    );
+    print('✅ Firestore configurado para modo offline');
+  } catch (e) {
+    print('⚠️ Erro ao configurar Firestore: $e');
+  }
+  
   runApp(const MyApp());
 }
 

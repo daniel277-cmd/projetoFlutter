@@ -53,17 +53,23 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
+    print('🔄 Iniciando ${isSignUp ? 'registro' : 'login'}...');
+    
     if (isSignUp) {
+      print('📝 Chamando registerEmail');
       await _auth.registerEmail(
         _emailCtrl.text.trim(),
         _passCtrl.text.trim(),
       );
     } else {
+      print('🔑 Chamando loginEmail');
       await _auth.loginEmail(
         _emailCtrl.text.trim(),
         _passCtrl.text.trim(),
       );
     }
+    
+    print('✅ Método de autenticação concluído');
   }
 
   @override
@@ -223,11 +229,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: OutlinedButton.icon(
-                                onPressed:
-                                    _auth.isLoading.value ? null : _auth.loginGoogle,
+                                onPressed: _auth.isLoading.value ? null : _auth.loginGoogle,
                                 icon: Image.asset(
                                   'assets/icons/google.png',
                                   height: 20,
+                                  width: 20,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return const Icon(
+                                      Icons.g_mobiledata,
+                                      color: Colors.red,
+                                      size: 20,
+                                    );
+                                  },
                                 ),
                                 label: const Text('Entrar com Google'),
                               ),

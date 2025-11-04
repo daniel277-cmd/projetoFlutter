@@ -32,18 +32,32 @@ class UserRepository {
 
   // ---------- FIRESTORE ----------
   Future<void> upsertFirestore(UserModel u) async {
-    await _col.doc(u.firebaseUid).set(u.toFirestore(), SetOptions(merge: true));
+    try {
+      await _col.doc(u.firebaseUid).set(u.toFirestore(), SetOptions(merge: true));
+      print('✅ Dados salvos no Firestore');
+    } catch (e) {
+      print('⚠️ Erro ao salvar no Firestore (funcionando offline): $e');
+      // Não falha - continua funcionando offline
+    }
   }
 
   Future<UserModel?> getFromFirestore(String uid) async {
-    final snap = await _col.doc(uid).get();
-    if (!snap.exists || snap.data() == null) return null;
-    return UserModel.fromFirestore(uid, snap.data()!);
+    try {
+      final snap = await _col.doc(uid).get(const GetOptions(source: Source.serverAndCache));
+      if (!snap.exists || snap.data() == null) return null;
+      return UserModel.fromFirestore(uid, snap.data()!);
+    } catch (e) {
+      print('⚠️ Erro ao buscar Firestore (usando dados locais): $e');
+      return null; // Fallback para dados locais
+    }
   }
 
   // ---------- SQLITE ----------
   Future<UserModel?> findByFirebaseUid(String uid) async {
-    if (kIsWeb) return null;
+    if (kIsWeb) {
+      print('⚠️ SQLite não disponível no Web - ignorando busca local');  
+      return null;
+    }
     final db = await _db;
     final res = await db.query('users', where: 'firebaseUid = ?', whereArgs: [uid], limit: 1);
     if (res.isEmpty) return null;
@@ -51,6 +65,10 @@ class UserRepository {
   }
 
   Future<UserModel> upsertLocal(UserModel u) async {
+    if (kIsWeb) {
+      print('⚠️ SQLite não disponível no Web - retornando dados sem ID local');
+      return u; // Retorna sem salvar localmente no Web
+    }
     final db = await _db;
     final existing = await db.query('users', where: 'firebaseUid = ?', whereArgs: [u.firebaseUid], limit: 1);
     if (existing.isEmpty) {
@@ -65,6 +83,12 @@ class UserRepository {
   // ---------- SYNC ----------
   /// Garante o usuário em ambos os lados e retorna o modelo consolidado local.
   Future<UserModel> syncUser(UserModel base) async {
+    if (kIsWeb) {
+      print('🌐 Modo Web - usando apenas Firestore');
+      await upsertFirestore(base);
+      return base;
+    }
+    
     // Prioridade: Firestore como fonte de verdade para perfil/role/classId
     final remote = await getFromFirestore(base.firebaseUid);
     final merged = (remote == null)
