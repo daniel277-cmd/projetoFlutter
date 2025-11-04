@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "851102593535",
+    "project_id": "appmobile-2bbcb",
+    "storage_bucket": "appmobile-2bbcb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:851102593535:android:2535ed34dc96c19eac37ca",
+        "android_client_info": {
+          "package_name": "com.example.teladelogin"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHtQPPoImQGmuJcEBJObuKqY-cdupACUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
