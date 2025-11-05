@@ -8,13 +8,14 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
-    
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('📱 Dashboard'),
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        elevation: 0,
+        title: const Text('🎵 Dashboard'),
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.redAccent,
+        elevation: 4,
+        centerTitle: true,
         actions: [
           IconButton(
             tooltip: 'Sair',
@@ -22,16 +23,16 @@ class HomeScreen extends StatelessWidget {
               await FirebaseAuth.instance.signOut();
               Get.offAllNamed('/login');
             },
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.redAccent),
           ),
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           gradient: LinearGradient(
+            colors: [Colors.black, Color(0xFF1A1A1A)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.deepPurple, Colors.purple.shade100],
           ),
         ),
         child: SafeArea(
@@ -44,13 +45,14 @@ class HomeScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
+                    color: const Color(0xFF121212),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.redAccent.withOpacity(0.4)),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 5),
+                        color: Colors.redAccent.withOpacity(0.2),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
                       ),
                     ],
                   ),
@@ -58,7 +60,7 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: Colors.deepPurple,
+                        backgroundColor: Colors.redAccent,
                         child: Text(
                           user?.displayName?.substring(0, 1).toUpperCase() ??
                               user?.email?.substring(0, 1).toUpperCase() ??
@@ -80,7 +82,7 @@ class HomeScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.w300,
-                                color: Colors.grey,
+                                color: Colors.white60,
                               ),
                             ),
                             Text(
@@ -88,7 +90,7 @@ class HomeScreen extends StatelessWidget {
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                                color: Colors.white,
                               ),
                             ),
                           ],
@@ -97,21 +99,21 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 30),
-                
-                // Título das opções
+
+                // Título do menu
                 const Text(
                   'Menu Principal',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: Colors.redAccent,
                   ),
                 ),
-                
+
                 const SizedBox(height: 20),
-                
+
                 // Grid de opções
                 Expanded(
                   child: GridView.count(
@@ -123,24 +125,26 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.inventory,
                         title: 'Produtos',
                         subtitle: 'Gerenciar estoque',
-                        color: Colors.blue,
+                        color: Colors.redAccent,
                         onTap: () => Get.toNamed('/products'),
                       ),
                       _buildMenuCard(
                         icon: Icons.add_circle,
                         title: 'Novo Produto',
                         subtitle: 'Cadastrar item',
-                        color: Colors.green,
+                        color: Colors.redAccent.shade200,
                         onTap: () => Get.toNamed('/product-form'),
                       ),
                       _buildMenuCard(
                         icon: Icons.analytics,
                         title: 'Relatórios',
                         subtitle: 'Em breve',
-                        color: Colors.orange,
+                        color: Colors.redAccent.shade100,
                         onTap: () => Get.snackbar(
                           'Em Desenvolvimento',
                           'Funcionalidade em breve!',
+                          backgroundColor: Colors.black87,
+                          colorText: Colors.white,
                           snackPosition: SnackPosition.BOTTOM,
                         ),
                       ),
@@ -148,10 +152,12 @@ class HomeScreen extends StatelessWidget {
                         icon: Icons.settings,
                         title: 'Configurações',
                         subtitle: 'Em breve',
-                        color: Colors.purple,
+                        color: Colors.red.shade300,
                         onTap: () => Get.snackbar(
                           'Em Desenvolvimento',
                           'Funcionalidade em breve!',
+                          backgroundColor: Colors.black87,
+                          colorText: Colors.white,
                           snackPosition: SnackPosition.BOTTOM,
                         ),
                       ),
@@ -177,49 +183,50 @@ class HomeScreen extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
+          color: const Color(0xFF1A1A1A),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
+              color: Colors.redAccent.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(18),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(15),
+                padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: color.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(50),
                 ),
                 child: Icon(
                   icon,
-                  size: 30,
+                  size: 32,
                   color: color,
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 12),
               Text(
                 title,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+                  color: Colors.white,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 5),
               Text(
                 subtitle,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.grey[600],
+                  color: Colors.white54,
                 ),
                 textAlign: TextAlign.center,
               ),

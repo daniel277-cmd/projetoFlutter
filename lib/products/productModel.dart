@@ -1,30 +1,33 @@
+// ignore_for_file: file_names
+
+//PROPRIEDADES E ATRIBUTOS DO PRODUTO
 class Product {
-  final int? id;            
-  final String? remoteId;   
-  final String name;
-  final String? sku;
-  final double price;
-  final int stock;
-  final String? description;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final bool dirty;         
-  final bool deleted;     
+  final int? id; // ID local (SQLite)
+  final String? remoteId; // ID remoto (Firestore)
+  final String name; // Nome do produto (obrigatório)
+  final String? sku; // Código SKU (opcional)
+  final double price; // Preço (obrigatório)
+  final int stock; // Estoque (obrigatório)
+  final String? description; // Descrição (opcional)
+  final DateTime createdAt; // Data de criação
+  final DateTime updatedAt; // Data de atualização
+  final bool dirty; // Marcador de sincronização
+  final bool deleted; // Soft delete
 
   Product({
     this.id,
     this.remoteId,
-    required this.name,
+    required this.name, // Obrigatório
     this.sku,
-    required this.price,
-    required this.stock,
+    required this.price, // Obrigatório
+    required this.stock, // Obrigatório
     this.description,
     DateTime? createdAt,
     DateTime? updatedAt,
-    this.dirty = false,
-    this.deleted = false,
-  })  : createdAt = createdAt ?? DateTime.now(),
-        updatedAt = updatedAt ?? DateTime.now();
+    this.dirty = false, // Padrão: não modificado
+    this.deleted = false, // Padrão: não deletado
+  }) : createdAt = createdAt ?? DateTime.now(),
+       updatedAt = updatedAt ?? DateTime.now();
 
   Product copyWith({
     int? id,
@@ -42,7 +45,7 @@ class Product {
     return Product(
       id: id ?? this.id,
       remoteId: remoteId ?? this.remoteId,
-      name: name ?? this.name ?? '',
+      name: name ?? this.name,
       sku: sku ?? this.sku,
       price: price ?? this.price,
       stock: stock ?? this.stock,
@@ -55,49 +58,46 @@ class Product {
   }
 
   factory Product.fromMap(Map<String, dynamic> m) => Product(
-        id: m['id'] as int?,
-        remoteId: m['remoteId'] as String?,
-        name: m['name'] as String,
-        sku: m['sku'] as String?,
-        price: (m['price'] as num).toDouble(),
-        stock: (m['stock'] as num).toInt(),
-        description: m['description'] as String?,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(m['createdAt'] as int),
-        updatedAt: DateTime.fromMillisecondsSinceEpoch(m['updatedAt'] as int),
-        dirty: (m['dirty'] ?? 0) == 1,
-        deleted: (m['deleted'] ?? 0) == 1,
-      );
+    id: m['id'] as int?,
+    remoteId: m['remoteId'] as String?,
+    name: m['name'] as String,
+    sku: m['sku'] as String?,
+    price: (m['price'] as num).toDouble(),
+    stock: (m['stock'] as num).toInt(),
+    description: m['description'] as String?,
+    createdAt: DateTime.fromMillisecondsSinceEpoch(m['createdAt'] as int),
+    updatedAt: DateTime.fromMillisecondsSinceEpoch(m['updatedAt'] as int),
+    dirty: (m['dirty'] ?? 0) == 1,
+    deleted: (m['deleted'] ?? 0) == 1,
+  );
 
   Map<String, dynamic> toMap() => {
-        'id': id,
-        'remoteId': remoteId,
-        'name': name,
-        'sku': sku,
-        'price': price,
-        'stock': stock,
-        'description': description,
-        'createdAt': createdAt.millisecondsSinceEpoch,
-        'updatedAt': updatedAt.millisecondsSinceEpoch,
-        'dirty': dirty ? 1 : 0,
-        'deleted': deleted ? 1 : 0,
-      };
+    'id': id,
+    'remoteId': remoteId,
+    'name': name,
+    'sku': sku,
+    'price': price,
+    'stock': stock,
+    'description': description,
+    'createdAt': createdAt.millisecondsSinceEpoch,
+    'updatedAt': updatedAt.millisecondsSinceEpoch,
+    'dirty': dirty ? 1 : 0,
+    'deleted': deleted ? 1 : 0,
+  };
 
   Map<String, dynamic> toFirestore(String ownerUid) => {
-        'ownerUid': ownerUid,
-        'name': name,
-        'sku': sku,
-        'price': price,
-        'stock': stock,
-        'description': description,
-        'createdAt': createdAt.millisecondsSinceEpoch,
-        'updatedAt': updatedAt.millisecondsSinceEpoch,
-        'deleted': deleted,
-      };
+    'ownerUid': ownerUid,
+    'name': name,
+    'sku': sku,
+    'price': price,
+    'stock': stock,
+    'description': description,
+    'createdAt': createdAt.millisecondsSinceEpoch,
+    'updatedAt': updatedAt.millisecondsSinceEpoch,
+    'deleted': deleted,
+  };
 
-  static Product fromFirestore(
-    Map<String, dynamic> d, {
-    String? remoteId,
-  }) {
+  static Product fromFirestore(Map<String, dynamic> d, {String? remoteId}) {
     return Product(
       remoteId: remoteId,
       name: d['name'] as String,

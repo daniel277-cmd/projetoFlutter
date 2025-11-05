@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp( // Mudança para GetMaterialApp
       title: 'App de Produtos',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 224, 8, 19)),//Color(0xFFE50914)
         useMaterial3: true,
       ),
       initialRoute: '/login',

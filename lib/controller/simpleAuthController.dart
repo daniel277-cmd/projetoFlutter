@@ -1,5 +1,5 @@
+// ignore: file_names
 import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SimpleAuthController extends GetxController {
