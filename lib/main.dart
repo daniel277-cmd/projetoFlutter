@@ -51,6 +51,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp( // Mudança para GetMaterialApp
+      debugShowCheckedModeBanner: false,
       title: 'App de Produtos',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 224, 8, 19)),//Color(0xFFE50914)

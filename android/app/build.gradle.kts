@@ -1,16 +1,8 @@
 plugins {
-    id "com.android.application" version "8.+" apply false
-    id "com.android.library"    version "8.+" apply false
-    id "org.jetbrains.kotlin.android" version "1.9.+" apply false
-
-    // Versão do Google Services aqui:
-    id "com.google.gms.google-services" version "4.4.1" apply false
-    
+    // Module plugins (Kotlin DSL) — do not specify versions here in module build files.
     id("com.android.application")
-    // START: FlutterFire Configuration
+    id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
-    // END: FlutterFire Configuration
-    id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
 }
@@ -18,7 +10,8 @@ plugins {
 android {
     namespace = "com.example.teladelogin"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    // Use the NDK version required by some plugins (cloud_firestore, firebase_auth, etc.)
+    ndkVersion = "27.0.12077973"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -34,7 +27,9 @@ android {
         applicationId = "com.example.teladelogin"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+    // Alguns plugins (ex.: firebase_auth) exigem minSdk >= 23
+    // Ajustado para 23 para compatibilidade com as dependências Firebase
+    minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

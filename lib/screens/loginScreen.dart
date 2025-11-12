@@ -71,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
         filled: true,
         fillColor: const Color(0xFF1B1B1B),
         labelStyle: const TextStyle(color: Colors.white70),
-        hintStyle: const TextStyle(color: Colors.white54),
+        hintStyle: const TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
         prefixIconColor: const Color(0xFFFF3D3D),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
@@ -124,6 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(10),
                                   decoration: BoxDecoration(
+                                    // ignore: deprecated_member_use
                                     color: Colors.red.withOpacity(0.15),
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(color: Colors.redAccent),

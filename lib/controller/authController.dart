@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:teladelogin/models/userModel.dart';
 import 'package:teladelogin/repositories/authRepository.dart';
 import 'package:teladelogin/screens/loginScreen.dart';
-import 'package:teladelogin/screens/homeScreen.dart';
+import 'package:teladelogin/screens/mainLayoutScreen.dart';
 import 'package:teladelogin/services/authService.dart';
 import 'package:teladelogin/services/sessionService.dart';
 
@@ -142,12 +142,14 @@ class AuthController extends GetxController {
     print('🚀 Redirecionando para home: ${local.name} (${local.email})');
     
     try {
-      Get.offAllNamed('/home');
-      print('✅ Navegação executada');
+      // Navegar para o layout principal da aplicação (com BottomNavigationBar)
+      // evita abrir uma Home independente que causaria telas duplicadas.
+      Get.offAllNamed('/main');
+      print('✅ Navegação executada para /main');
     } catch (e) {
       print('❌ Erro na navegação: $e');
-      // Fallback: navegação direta
-      Get.offAll(() => HomeScreen());
+      // Fallback: navegação direta para MainLayoutScreen
+      Get.offAll(() => const MainLayoutScreen());
     }
   }
 

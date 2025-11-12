@@ -25,40 +25,14 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.deepPurple,
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white60,
-        elevation: 8,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Início',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: 'Produtos',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle),
-            label: 'Novo',
-          ),
-        ],
-      ),
+      // bottomNavigationBar removido a pedido — use o Drawer para navegação
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
               decoration: const BoxDecoration(
-                color: Colors.deepPurple,
+                color: Colors.black,
               ),
               accountName: Text(
                 FirebaseAuth.instance.currentUser?.displayName ?? 'Usuário',
@@ -75,7 +49,7 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
                       FirebaseAuth.instance.currentUser?.email?.substring(0, 1).toUpperCase() ??
                       'U',
                   style: const TextStyle(
-                    color: Colors.deepPurple,
+                    color: Colors.redAccent,
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -107,9 +81,8 @@ class _MainLayoutScreenState extends State<MainLayoutScreen> {
               title: const Text('Novo Produto'),
               onTap: () {
                 Navigator.pop(context);
-                setState(() {
-                  _currentIndex = 2;
-                });
+                // Abrir formulário de produto em vez de trocar a aba
+                Get.toNamed('/product-form');
               },
             ),
             const Divider(),

@@ -11,7 +11,15 @@ class ProductsListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    c.load();
+    // If route passed an initial query, use it
+    final args = Get.arguments;
+    if (args != null && args is Map && args['q'] is String) {
+      final q = args['q'] as String;
+      c.query.value = q;
+      c.load(q);
+    } else {
+      c.load();
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('📦 Produtos'),
