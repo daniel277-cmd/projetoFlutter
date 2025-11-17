@@ -1,22 +1,42 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:intl/date_symbol_data_local.dart';
+
+// Screens
 import 'package:teladelogin/screens/eventosScreen.dart';
 import 'package:teladelogin/screens/loginScreen.dart';
 import 'package:teladelogin/screens/homeScreen.dart';
 import 'package:teladelogin/screens/productsListScreen.dart';
 import 'package:teladelogin/screens/productFormScreen.dart';
 import 'package:teladelogin/screens/mainLayoutScreen.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:teladelogin/screens/profileScreen.dart'; // ← necessário p/ datas PT-BR
+import 'package:teladelogin/screens/profileScreen.dart';
+
+// Controller
+import 'package:teladelogin/products/productController.dart';
+
+// SQLite Web
+import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   await initializeDateFormatting('pt_BR', null);
 
+  // ---------------------------------------------
+  // 🔥 SQLite para Web
+  // ---------------------------------------------
+  if (kIsWeb) {
+    databaseFactory = databaseFactoryFfiWeb;
+    print("✅ SQLite Web ativado com sqflite_common_ffi_web");
+  }
+
+  // ---------------------------------------------
+  // 🔥 Firebase Inicialização
+  // ---------------------------------------------
   if (kIsWeb) {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -33,13 +53,16 @@ void main() async {
     await Firebase.initializeApp();
   }
 
+  // ---------------------------------------------
+  // 🔥 Firestore Offline Cache
+  // ---------------------------------------------
   try {
     FirebaseFirestore.instance.settings = const Settings(
       persistenceEnabled: true,
     );
-    print('✅ Firestore configurado para modo offline');
+    print("📦 Firestore com cache offline ativado");
   } catch (e) {
-    print('⚠️ Erro ao configurar Firestore: $e');
+    print("⚠️ Erro ao ativar Firestore offline: $e");
   }
 
   runApp(const MyApp());
@@ -50,15 +73,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    // 🔥 Registrar o Controller global (uma única vez)
+    Get.put(ProductController(), permanent: true);
+
+    // ---------------------------------------------
+    // 🔥 Aplicação principal (GetX Navigation)
+    // ---------------------------------------------
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'App de Produtos',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: const Color(0xFFE50914)),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+
       initialRoute: '/main',
+
       getPages: [
         GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/home', page: () => HomeScreen()),
@@ -71,5 +102,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-//GetPage(name: '/main', page: () => const MainLayoutScreen()),
-

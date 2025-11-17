@@ -15,12 +15,21 @@ class DatabaseHelper {
   }
 
   Future<Database> _init() async {
+    // ✔ SQLite Web via FFI WEB
     if (kIsWeb) {
-      throw StateError(
-        '❌ SQLite não disponível no Web. Use sqflite_common_ffi_web ou ignore chamadas locais.',
+      final db = await databaseFactory.openDatabase(
+        'corretor_prova_web.db',
+        options: OpenDatabaseOptions(
+          version: 2,
+          onCreate: _onCreate,
+          onUpgrade: _onUpgrade,
+        ),
       );
+      await _ensureProductsTable(db);
+      return db;
     }
 
+    // ✔ Mobile (Android/iOS)
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'corretor_prova.db');
 
@@ -30,6 +39,7 @@ class DatabaseHelper {
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
     );
+
     await _ensureProductsTable(db);
     return db;
   }
@@ -51,8 +61,7 @@ class DatabaseHelper {
 
   Future<void> _onUpgrade(Database db, int oldV, int newV) async {
     if (oldV < 2) {
-      await db.execute(
-          "ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'student'");
+      await db.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'student'");
       await db.execute("ALTER TABLE users ADD COLUMN classId TEXT");
     }
   }
@@ -73,9 +82,7 @@ class DatabaseHelper {
         deleted INTEGER NOT NULL DEFAULT 0
       );
     ''');
-    await db.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_products_remoteId ON products(remoteId);');
   }
-
 
   Future<void> close() async {
     final db = await database;

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:teladelogin/products/productController.dart';
@@ -7,19 +6,12 @@ import 'package:teladelogin/screens/productFormScreen.dart';
 
 class ProductsListScreen extends StatelessWidget {
   ProductsListScreen({super.key});
-  final c = Get.put(ProductController());
+
+ final ProductController c = Get.find<ProductController>(); 
+  final search = ''.obs;
 
   @override
   Widget build(BuildContext context) {
-    // If route passed an initial query, use it
-    final args = Get.arguments;
-    if (args != null && args is Map && args['q'] is String) {
-      final q = args['q'] as String;
-      c.query.value = q;
-      c.load(q);
-    } else {
-      c.load();
-    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('📦 Produtos'),
@@ -42,8 +34,10 @@ class ProductsListScreen extends StatelessWidget {
           ),
         ],
       ),
+
       body: Column(
         children: [
+          // Campo de busca
           Padding(
             padding: const EdgeInsets.all(12),
             child: TextField(
@@ -52,31 +46,41 @@ class ProductsListScreen extends StatelessWidget {
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
               ),
-              onChanged: (v) {
-                c.query.value = v;
-                c.load(v);
-              },
+              onChanged: (v) => search.value = v,
             ),
           ),
+
+          // Lista de produtos com filtro
           Expanded(
             child: Obx(() {
               if (c.isLoading.value) {
                 return const Center(child: CircularProgressIndicator());
               }
+
               if (c.error.value != null) {
                 return Center(child: Text(c.error.value!));
               }
-              if (c.products.isEmpty) {
+
+              final filtro = search.value.toLowerCase();
+              final lista = c.products.where((p) {
+                return p.name.toLowerCase().contains(filtro) ||
+                    (p.sku ?? '').toLowerCase().contains(filtro);
+              }).toList();
+
+              if (lista.isEmpty) {
                 return const Center(child: Text('Nenhum produto encontrado.'));
               }
+
               return ListView.separated(
-                itemCount: c.products.length,
+                itemCount: lista.length,
                 separatorBuilder: (_, __) => const Divider(height: 1),
                 itemBuilder: (_, i) {
-                  final Product p = c.products[i];
+                  final Product p = lista[i];
                   return ListTile(
                     title: Text('${p.name}  (Estoque: ${p.stock})'),
-                    subtitle: Text('SKU: ${p.sku ?? '-'}  •  R\$ ${p.price.toStringAsFixed(2)}'),
+                    subtitle: Text(
+                      'SKU: ${p.sku ?? '-'}  •  R\$ ${p.price.toStringAsFixed(2)}'
+                    ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -90,6 +94,7 @@ class ProductsListScreen extends StatelessWidget {
                                 builder: (_) => ProductFormScreen(product: p),
                               ),
                             );
+
                             if (updated == true) c.load();
                           },
                         ),
@@ -107,10 +112,11 @@ class ProductsListScreen extends StatelessWidget {
           ),
         ],
       ),
+
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           await Get.toNamed('/product-form');
-          c.load(); // Recarrega a lista quando volta
+          c.load(); // recarrega ao voltar
         },
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
@@ -120,21 +126,34 @@ class ProductsListScreen extends StatelessWidget {
     );
   }
 
-  void _confirmDelete(BuildContext context, ProductController c, Product p) async {
+  // ======= Confirmação de exclusão =======
+  void _confirmDelete(
+    BuildContext context,
+    ProductController c,
+    Product p,
+  ) async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Excluir produto'),
         content: Text('Confirmar exclusão de "${p.name}"?'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancelar')),
-          ElevatedButton(onPressed: () => Navigator.pop(context, true), child: const Text('Excluir')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Excluir'),
+          ),
         ],
       ),
     );
+
     if (ok == true && p.id != null) {
       await c.remove(p.id!);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Produto excluído.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Produto excluído.')));
     }
   }
 }
